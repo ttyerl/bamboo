@@ -65,7 +65,7 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @spec deliver_now(Bamboo.Email.t()) :: Bamboo.Email.t()
+      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {any, Bamboo.Email.t()}
       def deliver_now(email, opts \\ []) do
         config = build_config()
         Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
@@ -105,7 +105,7 @@ defmodule Bamboo.Mailer do
 
       Email.welcome_email |> Mailer.deliver_now(response: true)
   """
-  def deliver_now(_email, opts \\ []) do
+  def deliver_now(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end
 
