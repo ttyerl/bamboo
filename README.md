@@ -253,6 +253,30 @@ struct directly to Bamboo anywhere it expects an address. See the
 [`Bamboo.Email`] and [`Bamboo.Formatter`] docs for more information and
 examples.
 
+## Handling Headers
+
+Email headers may be added to an email by adding them directly to the struct,
+by passing them in a keyword list to `Email.new_email/1`, or by calling
+`Email.put_header/4`. When constructing emails, the headers exist as a map
+where the map key represents the header's key and the map value may be either a
+string or a list of strings.
+
+When adding headers via `Email.put_header/4` two strategies exist for adding
+headers of the same key. First, and by default, calling `Email.put_header/4`
+with a header key that alread exists in the headers map will replace the
+existing value with the new argument. Second, a list of values can be produced
+by calling `Email.put_header/4` with `:combine` as the fourth argument multiple
+times with the same header key and different values. This makes the header
+value for that key a list of values.
+
+When the email is sent, headers should be normalized by calling
+`Mailer.normalize_headers/2`. This transforms the headers map into a list of
+two element tuples. Headers with list values can be transformed into a single
+comma separated string by passing `:csv` as the second argument (the default
+option) or into a list of two element tuples where the first element is the
+repeated key and the second element one of its values by passing `:list` as the
+second argument.
+
 ## Using Phoenix Views and Layouts
 
 Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can
