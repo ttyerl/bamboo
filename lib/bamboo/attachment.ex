@@ -2,16 +2,27 @@ defmodule Bamboo.Attachment do
   @moduledoc """
   """
 
-  defstruct filename: nil, content_type: nil, path: nil, data: nil
+  defstruct filename: nil, content_type: nil, path: nil, data: nil, content_id: nil
 
   @doc ~S"""
-  Creates a new Attachment
+  Creates a new Attachment.
+
+  context_id can be use to embed an image, attach it and reference in the message body by
+  setting its CID (Content-ID) and using a standard HTML tag:
+
+      <img src="cid:some-image-cid" alt="img" />
+
+  within a HTML email message.
 
   Examples:
     Bamboo.Attachment.new("/path/to/attachment.png")
     Bamboo.Attachment.new("/path/to/attachment.png", filename: "image.png")
-    Bamboo.Attachment.new("/path/to/attachment.png", filename: "image.png", content_type: "image/png")
+    Bamboo.Attachment.new("/path/to/attachment.png", filename: "image.png", content_type: "image/png", content_id: "12387432")
     Bamboo.Attachment.new(params["file"]) # Where params["file"] is a %Plug.Upload
+
+    email
+    |> put_html_layout({LayoutView, "email.html"})
+    |> put_attachment(%Bamboo.Attachment{content_type: "image/png", filename: "logo.png", data: get_content(), content_id: "2343333333"})
   """
   def new(path, opts \\ [])
 
@@ -23,8 +34,9 @@ defmodule Bamboo.Attachment do
   def new(path, opts) do
     filename = opts[:filename] || Path.basename(path)
     content_type = opts[:content_type] || determine_content_type(path)
+    content_id = opts[:content_id]
     data = File.read!(path)
-    %__MODULE__{path: path, data: data, filename: filename, content_type: content_type}
+    %__MODULE__{path: path, data: data, filename: filename, content_type: content_type, content_id: content_id}
   end
 
   defp determine_content_type(path) do
